@@ -38,7 +38,7 @@ select,input[type=text],input[type=date],input[type=number]{font:inherit;padding
 .ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 .del{background:none;border:0;color:var(--mut);font-size:22px;cursor:pointer;padding:6px}
 .empty{color:var(--mut);padding:16px 0}
-#food,#light,#fire,#med,#tools,#other{display:flex;flex-direction:column}#food #ff,#light #lf,#fire #gf,#med #mf,#tools #tf,#other #xf{order:5;margin-top:16px}#fadd,#ladd,#gadd,#madd,#tadd,#xadd{order:-1;margin-bottom:12px}
+#food,#light,#fire,#med,#tools,#tech,#other{display:flex;flex-direction:column}#food #ff,#light #lf,#fire #gf,#med #mf,#tools #tf,#tech #yf,#other #xf{order:5;margin-top:16px}#fadd,#ladd,#gadd,#madd,#tadd,#yadd,#xadd{order:-1;margin-bottom:12px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -53,6 +53,7 @@ select,input[type=text],input[type=date],input[type=number]{font:inherit;padding
 <button role="tab" aria-selected="false" data-t="fire">FUEGO</button>
 <button role="tab" aria-selected="false" data-t="med">MÉDICO</button>
 <button role="tab" aria-selected="false" data-t="tools">HERRAMIENTAS</button>
+<button role="tab" aria-selected="false" data-t="tech">TECNOLOGÍA</button>
 <button role="tab" aria-selected="false" data-t="other">OTROS</button>
 </div>
 
@@ -166,9 +167,22 @@ select,input[type=text],input[type=date],input[type=number]{font:inherit;padding
 <div class="sum" id="xsum"></div>
 <div id="xlist"></div>
 </section>
+<section id="tech" hidden>
+<button class="btn" type="button" id="yadd">+ Añadir tecnología</button>
+<form id="yf" hidden>
+<label>Artículo<input type="text" name="art" placeholder="Ej: Radio, batería externa, cargador solar" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+<label>Notas (capacidad, cables, pilas)<input type="text" name="nota"></label>
+<button class="btn" type="submit" id="ysubmit">Guardar tecnología</button>
+<button class="btn alt" type="button" id="ycancel">Cancelar</button>
+</form>
+<div class="sum" id="ysum"></div>
+<div id="ylist"></div>
+</section>
 </main>
 <script>
-let S={food:[],water:[],light:[],fire:[],med:[],tools:[],other:[]},photo="";
+let S={food:[],water:[],light:[],fire:[],med:[],tools:[],tech:[],other:[]},photo="";
 try{const r=localStorage.getItem("emergencia");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 function save(){try{localStorage.setItem("emergencia",JSON.stringify(S))}catch(e){alert("No se pudo guardar en este dispositivo.")}}
 const $=s=>document.querySelector(s);
@@ -215,6 +229,14 @@ return`<div class="item"><div class="ph" style="font-size:26px">📦</div><div c
 function cancelXEdit(){xediting=-1;$("#xf").reset();$("#xsubmit").textContent="Guardar otro";$("#xf").hidden=true}
 function startXEdit(i){const x=S.other[i],f=$("#xf");xediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.cad.value=x.cad||"";f.uds.value=x.uds;f.nota.value=x.nota||"";$("#xsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
 $("#xcancel").onclick=cancelXEdit;
+let yediting=-1;
+function renderY(){$("#ysum").textContent=S.tech.length?S.tech.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.tech.length+" artículos":"";
+$("#ylist").innerHTML=S.tech.length?S.tech.map((x,i)=>`<div class="item"><div class="ph" style="color:var(--water);font-size:26px">🔋</div><div class="b"><strong>${esc(x.art)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${x.nota?`<div><small>${esc(x.nota)}</small></div>`:''}</div><button class="del" data-yedit="${i}" aria-label="Editar">✎</button><button class="del" data-k="tech" data-i="${i}" aria-label="Eliminar">×</button></div>`).join(""):'<p class="empty">Aún no hay tecnología. Añade radio, batería externa o cargadores.</p>'}
+function cancelYEdit(){yediting=-1;$("#yf").reset();$("#ysubmit").textContent="Guardar tecnología";$("#yf").hidden=true}
+function startYEdit(i){const x=S.tech[i],f=$("#yf");yediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.uds.value=x.uds;f.nota.value=x.nota||"";$("#ysubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#ycancel").onclick=cancelYEdit;
+$("#yadd").onclick=()=>{const f=$("#yf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
+$("#yf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),uds:+d.get("uds"),nota:d.get("nota")};if(yediting>=0)S.tech[yediting]=it;else S.tech.push(it);save();cancelYEdit();render()};
 $("#xadd").onclick=()=>{const f=$("#xf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
 $("#xf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),cad:d.get("cad"),uds:+d.get("uds"),nota:d.get("nota")};if(xediting>=0)S.other[xediting]=it;else S.other.push(it);save();cancelXEdit();render()};
 $("#tadd").onclick=()=>{const f=$("#tf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
@@ -228,7 +250,7 @@ $("#lf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it
 const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function est(d){const days=Math.ceil((new Date(d)-new Date(new Date().toDateString()))/864e5);
 if(days<0)return['bad','Caducado'];if(days<=30)return['warn','Caduca en '+days+' d'];return['ok','Caduca el '+new Date(d).toLocaleDateString('es-ES')]}
-function render(){renderL();renderG();renderM();renderT();renderX();
+function render(){renderL();renderG();renderM();renderT();renderX();renderY();
 $("#fsum").textContent=S.food.length?S.food.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.food.length+" productos":"";
 $("#flist").innerHTML=S.food.length?foodSorted().map(({x,i})=>{const[c,t]=est(x.cad);
 return`<div class="item">${x.foto?`<img src="${x.foto}" alt="${esc(x.producto)}">`:'<div class="ph">Sin foto</div>'}<div class="b"><strong>${esc(x.producto)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds${x.peso?' · '+esc(x.peso)+'/envase':''}</small><div class="tag ${c}">${t}</div></div><button class="del" data-edit="${i}" aria-label="Editar">✎</button><button class="del" data-k="food" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay comida. Añade el primer producto.</p>';
@@ -239,7 +261,7 @@ return`<div class="item"><div class="ph" style="color:var(--water);font-size:26p
 }
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
-$("#food").hidden=b.dataset.t!=="food";$("#water").hidden=b.dataset.t!=="water";$("#light").hidden=b.dataset.t!=="light";$("#fire").hidden=b.dataset.t!=="fire";$("#med").hidden=b.dataset.t!=="med";$("#tools").hidden=b.dataset.t!=="tools";$("#other").hidden=b.dataset.t!=="other"});
+$("#food").hidden=b.dataset.t!=="food";$("#water").hidden=b.dataset.t!=="water";$("#light").hidden=b.dataset.t!=="light";$("#fire").hidden=b.dataset.t!=="fire";$("#med").hidden=b.dataset.t!=="med";$("#tools").hidden=b.dataset.t!=="tools";$("#other").hidden=b.dataset.t!=="other";$("#tech").hidden=b.dataset.t!=="tech"});
 $("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();const u=URL.createObjectURL(f);
 im.onload=()=>{const m=480,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
 c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
@@ -251,8 +273,8 @@ $("#wf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);
 const it={marca:d.get("marca"),cad:d.get("cad"),bot:+d.get("bot"),lit:+d.get("lit")};
 if(wediting>=0)S.water[wediting]=it;else S.water.push(it);
 S.water.sort((a,b)=>a.cad.localeCompare(b.cad));save();cancelWEdit();render()};
-document.addEventListener("click",e=>{const xe=e.target.closest("[data-xedit]");if(xe){startXEdit(+xe.dataset.xedit);return}const te=e.target.closest("[data-tedit]");if(te){startTEdit(+te.dataset.tedit);return}const me=e.target.closest("[data-medit]");if(me){startMEdit(+me.dataset.medit);return}const ge=e.target.closest("[data-gedit]");if(ge){startGEdit(+ge.dataset.gedit);return}const le=e.target.closest("[data-ledit]");if(le){startLEdit(+le.dataset.ledit);return}const we=e.target.closest("[data-wedit]");if(we){startWEdit(+we.dataset.wedit);return}const ed=e.target.closest("[data-edit]");if(ed){startEdit(+ed.dataset.edit);return}const b=e.target.closest(".del");if(!b||!b.dataset.k)return;
-if(confirm("¿Eliminar este elemento?")){if(b.dataset.k==="food")cancelEdit();if(b.dataset.k==="water")cancelWEdit();if(b.dataset.k==="light")cancelLEdit();if(b.dataset.k==="fire")cancelGEdit();if(b.dataset.k==="med")cancelMEdit();if(b.dataset.k==="tools")cancelTEdit();if(b.dataset.k==="other")cancelXEdit();S[b.dataset.k].splice(+b.dataset.i,1);save();render()}});
+document.addEventListener("click",e=>{const ye=e.target.closest("[data-yedit]");if(ye){startYEdit(+ye.dataset.yedit);return}const xe=e.target.closest("[data-xedit]");if(xe){startXEdit(+xe.dataset.xedit);return}const te=e.target.closest("[data-tedit]");if(te){startTEdit(+te.dataset.tedit);return}const me=e.target.closest("[data-medit]");if(me){startMEdit(+me.dataset.medit);return}const ge=e.target.closest("[data-gedit]");if(ge){startGEdit(+ge.dataset.gedit);return}const le=e.target.closest("[data-ledit]");if(le){startLEdit(+le.dataset.ledit);return}const we=e.target.closest("[data-wedit]");if(we){startWEdit(+we.dataset.wedit);return}const ed=e.target.closest("[data-edit]");if(ed){startEdit(+ed.dataset.edit);return}const b=e.target.closest(".del");if(!b||!b.dataset.k)return;
+if(confirm("¿Eliminar este elemento?")){if(b.dataset.k==="food")cancelEdit();if(b.dataset.k==="water")cancelWEdit();if(b.dataset.k==="light")cancelLEdit();if(b.dataset.k==="fire")cancelGEdit();if(b.dataset.k==="med")cancelMEdit();if(b.dataset.k==="tools")cancelTEdit();if(b.dataset.k==="other")cancelXEdit();if(b.dataset.k==="tech")cancelYEdit();S[b.dataset.k].splice(+b.dataset.i,1);save();render()}});
 render();
 </script>
 </body>
