@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EMERGENCIA</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f3;--surf:#fff;--ink:#14262b;--mut:#5b6e73;--line:#cfd9dc;--acc:#e8590c;--water:#1c6e9e;--bad:#b42318;--warn:#b54708;--ok:#067647;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1d;--surf:#17262a;--ink:#e8f0f2;--mut:#93a8ad;--line:#2b3f44;--acc:#ff7a33;--water:#5db4e6;--bad:#ff8a80;--warn:#ffb74d;--ok:#5fd39a}}
+:root[data-theme="dark"]{--bg:#0f1a1d;--surf:#17262a;--ink:#e8f0f2;--mut:#93a8ad;--line:#2b3f44;--acc:#ff7a33;--water:#5db4e6;--bad:#ff8a80;--warn:#ffb74d;--ok:#5fd39a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Barlow,system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font:800 clamp(44px,13vw,72px)/.9 "Barlow Condensed",Impact,sans-serif;margin:8px 0 4px;letter-spacing:.01em;border-left:10px solid var(--acc);padding-left:12px}
+.sub{color:var(--mut);margin:0 0 16px 22px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tabs button{flex:1 1 auto;font:800 20px "Barlow Condensed",sans-serif;padding:10px 8px;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:6px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.tabs button:focus-visible,input:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+form{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+label{display:grid;gap:4px;font-weight:600;font-size:14px}
+select,input[type=text],input[type=date],input[type=number]{font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo{display:flex;align-items:center;gap:12px}
+.photo img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.btn{font:600 16px Barlow,sans-serif;padding:11px 16px;border-radius:6px;border:0;background:var(--acc);color:#fff;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.sum{margin:18px 0 8px;font:700 22px "Barlow Condensed",sans-serif}
+.item{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.item img{width:60px;height:60px;object-fit:cover;border-radius:8px}
+.ph{width:60px;height:60px;border-radius:8px;background:var(--bg);display:grid;place-items:center;color:var(--mut);font-size:12px}
+.item .b{flex:1;min-width:0}.item strong{display:block;font-size:18px}
+.item small{color:var(--mut)}
+.tag{font-weight:600;font-size:13px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.del{background:none;border:0;color:var(--mut);font-size:22px;cursor:pointer;padding:6px}
+.empty{color:var(--mut);padding:16px 0}
+#food,#light,#fire,#med,#tools,#other{display:flex;flex-direction:column}#food #ff,#light #lf,#fire #gf,#med #mf,#tools #tf,#other #xf{order:5;margin-top:16px}#fadd,#ladd,#gadd,#madd,#tadd,#xadd{order:-1;margin-bottom:12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>EMERGENCIA</h1>
+<p class="sub">Inventario de tu kit: comida y agua.</p>
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-t="food">COMIDA</button>
+<button role="tab" aria-selected="false" data-t="water">AGUA</button>
+<button role="tab" aria-selected="false" data-t="light">ILUMINACIÓN</button>
+<button role="tab" aria-selected="false" data-t="fire">FUEGO</button>
+<button role="tab" aria-selected="false" data-t="med">MÉDICO</button>
+<button role="tab" aria-selected="false" data-t="tools">HERRAMIENTAS</button>
+<button role="tab" aria-selected="false" data-t="other">OTROS</button>
+</div>
+
+<section id="food">
+<button class="btn" type="button" id="fadd">+ Añadir comida</button>
+<form id="ff" hidden>
+<label>Producto<input type="text" name="producto" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<div class="row">
+<label>Fecha de caducidad<input type="date" name="cad" required></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+</div>
+<label>Peso por envase<input type="text" name="peso" placeholder="Ej: 400 g"></label>
+<div class="photo">
+<img id="prev" alt="" hidden>
+<label class="btn alt" style="cursor:pointer">Añadir foto<input type="file" id="file" accept="image/*" hidden></label>
+</div>
+<button class="btn" type="submit" id="fsubmit">Guardar comida</button>
+<button class="btn alt" type="button" id="fcancel">Cancelar</button>
+</form>
+<div class="sum" id="fsum"></div>
+<label style="margin-bottom:10px">Ordenar por<select id="fsort"><option value="cad">Caducidad más próxima</option><option value="add">Orden en que se añadieron</option></select></label>
+<div id="flist"></div>
+</section>
+
+<section id="water" hidden>
+<form id="wf">
+<label>Marca del agua<input type="text" name="marca" required></label>
+<label>Fecha de caducidad<input type="date" name="cad" required></label>
+<div class="row">
+<label>Número de botellas<input type="number" name="bot" min="1" value="1" required></label>
+<label>Litros totales<input type="number" name="lit" min="0" step="0.1" required></label>
+</div>
+<button class="btn" type="submit" id="wsubmit">Guardar agua</button>
+<button class="btn alt" type="button" id="wcancel" hidden>Cancelar edición</button>
+</form>
+<div class="sum" id="wsum"></div>
+<div id="wlist"></div>
+</section>
+<section id="light" hidden>
+<button class="btn" type="button" id="ladd">+ Añadir iluminación</button>
+<form id="lf" hidden>
+<label>Artículo<input type="text" name="art" placeholder="Ej: Linterna, vela, farol" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<div class="row">
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+<label>Pilas de repuesto<input type="number" name="rep" min="0" value="0"></label>
+</div>
+<label>Tipo de pila<input type="text" name="pila" placeholder="Ej: AA, 18650, recargable"></label>
+<button class="btn" type="submit" id="lsubmit">Guardar iluminación</button>
+<button class="btn alt" type="button" id="lcancel">Cancelar</button>
+</form>
+<div class="sum" id="lsum"></div>
+<div id="llist"></div>
+</section>
+<section id="fire" hidden>
+<button class="btn" type="button" id="gadd">+ Añadir fuego</button>
+<form id="gf" hidden>
+<label>Artículo<input type="text" name="art" placeholder="Ej: Mechero, cerillas, ferrocerio" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<label>Tipo<input type="text" name="tipo" placeholder="Ej: gas, imp. al agua, de tormenta"></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+<button class="btn" type="submit" id="gsubmit">Guardar fuego</button>
+<button class="btn alt" type="button" id="gcancel">Cancelar</button>
+</form>
+<div class="sum" id="gsum"></div>
+<div id="glist"></div>
+</section>
+<section id="med" hidden>
+<button class="btn" type="button" id="madd">+ Añadir médico</button>
+<form id="mf" hidden>
+<label>Producto<input type="text" name="prod" placeholder="Ej: Paracetamol, vendas, antiséptico" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<div class="row">
+<label>Fecha de caducidad<input type="date" name="cad"></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+</div>
+<label>Notas (uso, dosis indicada por tu médico)<input type="text" name="nota"></label>
+<button class="btn" type="submit" id="msubmit">Guardar médico</button>
+<button class="btn alt" type="button" id="mcancel">Cancelar</button>
+</form>
+<div class="sum" id="msum"></div>
+<div id="mlist"></div>
+</section>
+<section id="tools" hidden>
+<button class="btn" type="button" id="tadd">+ Añadir herramienta</button>
+<form id="tf" hidden>
+<label>Herramienta<input type="text" name="art" placeholder="Ej: Navaja, radio, cinta americana" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+<label>Notas (dónde está, estado)<input type="text" name="nota"></label>
+<button class="btn" type="submit" id="tsubmit">Guardar herramienta</button>
+<button class="btn alt" type="button" id="tcancel">Cancelar</button>
+</form>
+<div class="sum" id="tsum"></div>
+<div id="tlist"></div>
+</section>
+<section id="other" hidden>
+<button class="btn" type="button" id="xadd">+ Añadir otro</button>
+<form id="xf" hidden>
+<label>Artículo<input type="text" name="art" placeholder="Ej: Manta, documentos, dinero en efectivo" required></label>
+<label>Marca<input type="text" name="marca"></label>
+<div class="row">
+<label>Fecha de caducidad<input type="date" name="cad"></label>
+<label>Número de unidades<input type="number" name="uds" min="1" value="1" required></label>
+</div>
+<label>Notas<input type="text" name="nota"></label>
+<button class="btn" type="submit" id="xsubmit">Guardar otro</button>
+<button class="btn alt" type="button" id="xcancel">Cancelar</button>
+</form>
+<div class="sum" id="xsum"></div>
+<div id="xlist"></div>
+</section>
+</main>
+<script>
+let S={food:[],water:[],light:[],fire:[],med:[],tools:[],other:[]},photo="";
+try{const r=localStorage.getItem("emergencia");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+function save(){try{localStorage.setItem("emergencia",JSON.stringify(S))}catch(e){alert("No se pudo guardar en este dispositivo.")}}
+const $=s=>document.querySelector(s);
+let editing=-1;
+function foodSorted(){const a=S.food.map((x,i)=>({x,i}));if($("#fsort").value==="cad")a.sort((p,q)=>p.x.cad.localeCompare(q.x.cad));return a}
+function cancelEdit(){editing=-1;$("#ff").reset();photo="";$("#prev").hidden=true;$("#fsubmit").textContent="Guardar comida";$("#ff").hidden=true}
+function startEdit(i){const x=S.food[i],f=$("#ff");editing=i;f.producto.value=x.producto;f.marca.value=x.marca||"";f.cad.value=x.cad;f.uds.value=x.uds;f.peso.value=x.peso||"";photo=x.foto||"";$("#prev").src=photo;$("#prev").hidden=!photo;$("#fsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#fcancel").onclick=cancelEdit;$("#fsort").onchange=()=>render();
+$("#fadd").onclick=()=>{const f=$("#ff");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.producto.focus()};
+let wediting=-1;
+function cancelWEdit(){wediting=-1;$("#wf").reset();$("#wsubmit").textContent="Guardar agua";$("#wcancel").hidden=true}
+function startWEdit(i){const x=S.water[i],f=$("#wf");wediting=i;f.marca.value=x.marca;f.cad.value=x.cad;f.bot.value=x.bot;f.lit.value=x.lit;$("#wsubmit").textContent="Guardar cambios";$("#wcancel").hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#wcancel").onclick=cancelWEdit;
+let lediting=-1;
+function renderL(){$("#lsum").textContent=S.light.length?S.light.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.light.length+" artículos":"";
+$("#llist").innerHTML=S.light.length?S.light.map((x,i)=>{const t=[x.pila?"Pila: "+x.pila:"",x.rep?x.rep+" de repuesto":""].filter(Boolean).join(" · ");
+return`<div class="item"><div class="ph" style="color:var(--acc);font-size:26px">🔦</div><div class="b"><strong>${esc(x.art)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${t?`<div class="tag">${esc(t)}</div>`:''}</div><button class="del" data-ledit="${i}" aria-label="Editar">✎</button><button class="del" data-k="light" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay iluminación. Añade linternas, velas o pilas.</p>'}
+function cancelLEdit(){lediting=-1;$("#lf").reset();$("#lsubmit").textContent="Guardar iluminación";$("#lf").hidden=true}
+function startLEdit(i){const x=S.light[i],f=$("#lf");lediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.uds.value=x.uds;f.rep.value=x.rep||0;f.pila.value=x.pila||"";$("#lsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#lcancel").onclick=cancelLEdit;
+let gediting=-1;
+function renderG(){$("#gsum").textContent=S.fire.length?S.fire.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.fire.length+" artículos":"";
+$("#glist").innerHTML=S.fire.length?S.fire.map((x,i)=>`<div class="item"><div class="ph" style="color:var(--acc);font-size:26px">🔥</div><div class="b"><strong>${esc(x.art)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${x.tipo?`<div class="tag">${esc(x.tipo)}</div>`:''}</div><button class="del" data-gedit="${i}" aria-label="Editar">✎</button><button class="del" data-k="fire" data-i="${i}" aria-label="Eliminar">×</button></div>`).join(""):'<p class="empty">Aún no hay fuego. Añade mecheros, cerillas o ferrocerio.</p>'}
+function cancelGEdit(){gediting=-1;$("#gf").reset();$("#gsubmit").textContent="Guardar fuego";$("#gf").hidden=true}
+function startGEdit(i){const x=S.fire[i],f=$("#gf");gediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.tipo.value=x.tipo||"";f.uds.value=x.uds;$("#gsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#gcancel").onclick=cancelGEdit;
+let mediting=-1;
+function renderM(){$("#msum").textContent=S.med.length?S.med.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.med.length+" productos":"";
+$("#mlist").innerHTML=S.med.length?S.med.map((x,i)=>({x,i})).sort((p,q)=>(p.x.cad||"9999").localeCompare(q.x.cad||"9999")).map(({x,i})=>{const[c,t]=x.cad?est(x.cad):["","Sin caducidad"];
+return`<div class="item"><div class="ph" style="color:var(--bad);font-size:26px">🩹</div><div class="b"><strong>${esc(x.prod)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${x.nota?`<div><small>${esc(x.nota)}</small></div>`:''}<div class="tag ${c}">${t}</div></div><button class="del" data-medit="${i}" aria-label="Editar">✎</button><button class="del" data-k="med" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay material médico. Añade medicamentos, vendas o antisépticos.</p>'}
+function cancelMEdit(){mediting=-1;$("#mf").reset();$("#msubmit").textContent="Guardar médico";$("#mf").hidden=true}
+function startMEdit(i){const x=S.med[i],f=$("#mf");mediting=i;f.prod.value=x.prod;f.marca.value=x.marca||"";f.cad.value=x.cad||"";f.uds.value=x.uds;f.nota.value=x.nota||"";$("#msubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#mcancel").onclick=cancelMEdit;
+let tediting=-1;
+function renderT(){$("#tsum").textContent=S.tools.length?S.tools.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.tools.length+" herramientas":"";
+$("#tlist").innerHTML=S.tools.length?S.tools.map((x,i)=>`<div class="item"><div class="ph" style="color:var(--water);font-size:26px">🔧</div><div class="b"><strong>${esc(x.art)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${x.nota?`<div><small>${esc(x.nota)}</small></div>`:''}</div><button class="del" data-tedit="${i}" aria-label="Editar">✎</button><button class="del" data-k="tools" data-i="${i}" aria-label="Eliminar">×</button></div>`).join(""):'<p class="empty">Aún no hay herramientas. Añade navaja, radio, cinta o lo que necesites.</p>'}
+function cancelTEdit(){tediting=-1;$("#tf").reset();$("#tsubmit").textContent="Guardar herramienta";$("#tf").hidden=true}
+function startTEdit(i){const x=S.tools[i],f=$("#tf");tediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.uds.value=x.uds;f.nota.value=x.nota||"";$("#tsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#tcancel").onclick=cancelTEdit;
+let xediting=-1;
+function renderX(){$("#xsum").textContent=S.other.length?S.other.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.other.length+" artículos":"";
+$("#xlist").innerHTML=S.other.length?S.other.map((x,i)=>({x,i})).sort((p,q)=>(p.x.cad||"9999").localeCompare(q.x.cad||"9999")).map(({x,i})=>{const[c,t]=x.cad?est(x.cad):["","Sin caducidad"];
+return`<div class="item"><div class="ph" style="font-size:26px">📦</div><div class="b"><strong>${esc(x.art)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds</small>${x.nota?`<div><small>${esc(x.nota)}</small></div>`:''}<div class="tag ${c}">${t}</div></div><button class="del" data-xedit="${i}" aria-label="Editar">✎</button><button class="del" data-k="other" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay nada aquí. Añade mantas, documentos o cualquier otro artículo.</p>'}
+function cancelXEdit(){xediting=-1;$("#xf").reset();$("#xsubmit").textContent="Guardar otro";$("#xf").hidden=true}
+function startXEdit(i){const x=S.other[i],f=$("#xf");xediting=i;f.art.value=x.art;f.marca.value=x.marca||"";f.cad.value=x.cad||"";f.uds.value=x.uds;f.nota.value=x.nota||"";$("#xsubmit").textContent="Guardar cambios";f.hidden=false;f.scrollIntoView({behavior:"smooth"})}
+$("#xcancel").onclick=cancelXEdit;
+$("#xadd").onclick=()=>{const f=$("#xf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
+$("#xf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),cad:d.get("cad"),uds:+d.get("uds"),nota:d.get("nota")};if(xediting>=0)S.other[xediting]=it;else S.other.push(it);save();cancelXEdit();render()};
+$("#tadd").onclick=()=>{const f=$("#tf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
+$("#tf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),uds:+d.get("uds"),nota:d.get("nota")};if(tediting>=0)S.tools[tediting]=it;else S.tools.push(it);save();cancelTEdit();render()};
+$("#madd").onclick=()=>{const f=$("#mf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.prod.focus()};
+$("#mf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={prod:d.get("prod"),marca:d.get("marca"),cad:d.get("cad"),uds:+d.get("uds"),nota:d.get("nota")};if(mediting>=0)S.med[mediting]=it;else S.med.push(it);save();cancelMEdit();render()};
+$("#gadd").onclick=()=>{const f=$("#gf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
+$("#gf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),tipo:d.get("tipo"),uds:+d.get("uds")};if(gediting>=0)S.fire[gediting]=it;else S.fire.push(it);save();cancelGEdit();render()};
+$("#ladd").onclick=()=>{const f=$("#lf");f.hidden=false;f.scrollIntoView({behavior:"smooth"});f.art.focus()};
+$("#lf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);const it={art:d.get("art"),marca:d.get("marca"),pila:d.get("pila"),uds:+d.get("uds"),rep:+d.get("rep")||0};if(lediting>=0)S.light[lediting]=it;else S.light.push(it);save();cancelLEdit();render()};
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function est(d){const days=Math.ceil((new Date(d)-new Date(new Date().toDateString()))/864e5);
+if(days<0)return['bad','Caducado'];if(days<=30)return['warn','Caduca en '+days+' d'];return['ok','Caduca el '+new Date(d).toLocaleDateString('es-ES')]}
+function render(){renderL();renderG();renderM();renderT();renderX();
+$("#fsum").textContent=S.food.length?S.food.reduce((a,x)=>a+x.uds,0)+" unidades en "+S.food.length+" productos":"";
+$("#flist").innerHTML=S.food.length?foodSorted().map(({x,i})=>{const[c,t]=est(x.cad);
+return`<div class="item">${x.foto?`<img src="${x.foto}" alt="${esc(x.producto)}">`:'<div class="ph">Sin foto</div>'}<div class="b"><strong>${esc(x.producto)}</strong><small>${esc(x.marca)||'Sin marca'} · ${x.uds} uds${x.peso?' · '+esc(x.peso)+'/envase':''}</small><div class="tag ${c}">${t}</div></div><button class="del" data-edit="${i}" aria-label="Editar">✎</button><button class="del" data-k="food" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay comida. Añade el primer producto.</p>';
+const L=S.water.reduce((a,x)=>a+x.lit,0);
+$("#wsum").textContent=S.water.length?L.toFixed(1).replace(/\.0$/,'')+" litros · "+S.water.reduce((a,x)=>a+x.bot,0)+" botellas":"";
+$("#wlist").innerHTML=S.water.length?S.water.map((x,i)=>{const[c,t]=est(x.cad);
+return`<div class="item"><div class="ph" style="color:var(--water);font-size:26px">💧</div><div class="b"><strong>${esc(x.marca)}</strong><small>${x.bot} botellas · ${x.lit} L</small><div class="tag ${c}">${t}</div></div><button class="del" data-wedit="${i}" aria-label="Editar">✎</button><button class="del" data-k="water" data-i="${i}" aria-label="Eliminar">×</button></div>`}).join(""):'<p class="empty">Aún no hay agua. Añade tus botellas.</p>';
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+$("#food").hidden=b.dataset.t!=="food";$("#water").hidden=b.dataset.t!=="water";$("#light").hidden=b.dataset.t!=="light";$("#fire").hidden=b.dataset.t!=="fire";$("#med").hidden=b.dataset.t!=="med";$("#tools").hidden=b.dataset.t!=="tools";$("#other").hidden=b.dataset.t!=="other"});
+$("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();const u=URL.createObjectURL(f);
+im.onload=()=>{const m=480,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
+c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+photo=c.toDataURL("image/jpeg",.7);$("#prev").src=photo;$("#prev").hidden=false;URL.revokeObjectURL(u)};im.src=u};
+$("#ff").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);
+const it={producto:d.get("producto"),marca:d.get("marca"),cad:d.get("cad"),uds:+d.get("uds"),peso:d.get("peso"),foto:photo};
+if(editing>=0)S.food[editing]=it;else S.food.push(it);save();cancelEdit();render()};
+$("#wf").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);
+const it={marca:d.get("marca"),cad:d.get("cad"),bot:+d.get("bot"),lit:+d.get("lit")};
+if(wediting>=0)S.water[wediting]=it;else S.water.push(it);
+S.water.sort((a,b)=>a.cad.localeCompare(b.cad));save();cancelWEdit();render()};
+document.addEventListener("click",e=>{const xe=e.target.closest("[data-xedit]");if(xe){startXEdit(+xe.dataset.xedit);return}const te=e.target.closest("[data-tedit]");if(te){startTEdit(+te.dataset.tedit);return}const me=e.target.closest("[data-medit]");if(me){startMEdit(+me.dataset.medit);return}const ge=e.target.closest("[data-gedit]");if(ge){startGEdit(+ge.dataset.gedit);return}const le=e.target.closest("[data-ledit]");if(le){startLEdit(+le.dataset.ledit);return}const we=e.target.closest("[data-wedit]");if(we){startWEdit(+we.dataset.wedit);return}const ed=e.target.closest("[data-edit]");if(ed){startEdit(+ed.dataset.edit);return}const b=e.target.closest(".del");if(!b||!b.dataset.k)return;
+if(confirm("¿Eliminar este elemento?")){if(b.dataset.k==="food")cancelEdit();if(b.dataset.k==="water")cancelWEdit();if(b.dataset.k==="light")cancelLEdit();if(b.dataset.k==="fire")cancelGEdit();if(b.dataset.k==="med")cancelMEdit();if(b.dataset.k==="tools")cancelTEdit();if(b.dataset.k==="other")cancelXEdit();S[b.dataset.k].splice(+b.dataset.i,1);save();render()}});
+render();
+</script>
+</body>
+</html>
